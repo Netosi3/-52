@@ -1,0 +1,35 @@
+using UnityEngine;
+
+public class MapGenerator : MonoBehaviour {
+    public int mapSize = 50; // Размер карты (квадрат)
+    public float noiseScale = 10f; // Масштаб шума
+    public float heightMultiplier = 5f; // Высота рельефа
+    public GameObject groundPrefab; // Префаб земли
+    public GameObject treePrefab; // Префаб дерева
+    public GameObject rockPrefab; // Префаб камня
+    public Transform mapParent; // Родительский объект для всех элементов карты
+
+    void Start() {
+        GenerateMap();
+    }
+
+    void GenerateMap() {
+        for (int x = 0; x < mapSize; x++) {
+            for (int z = 0; z < mapSize; z++) {
+                float height = Mathf.PerlinNoise(x / noiseScale, z / noiseScale) * heightMultiplier;
+                Vector3 position = new Vector3(x, height, z);
+
+                GameObject groundTile = Instantiate(groundPrefab, position, Quaternion.identity, mapParent);
+                groundTile.transform.localScale = new Vector3(1, 1, 1);
+
+                // Генерация ресурсов (деревья и камни)
+                float resourceChance = Random.value;
+                if (resourceChance < 0.05f) { // 5% шанс на камень
+                    Instantiate(rockPrefab, position + Vector3.up, Quaternion.identity, mapParent);
+                } else if (resourceChance < 0.15f) { // 10% шанс на дерево
+                    Instantiate(treePrefab, position + Vector3.up, Quaternion.identity, mapParent);
+                }
+            }
+        }
+    }
+}
